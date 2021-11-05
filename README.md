@@ -1,137 +1,149 @@
-### reg file shared
+### create file shared
 
-<?php
-	require_once "autoload.php";
+<?php	
+	include_once "autoload.php";
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Development Area</title>
+	<title>Add New Student</title>
 	<!-- ALL CSS FILES  -->
 	<link rel="stylesheet" href="assets/css/bootstrap.min.css">
 	<link rel="stylesheet" href="assets/css/style.css">
 	<link rel="stylesheet" href="assets/css/responsive.css">
 </head>
-<body class="py-5">
-
+<body>
+	
 	<?php
 
-		/**
-		 * reg form isset
-		 */
+	/**
+	 * Student form isset
+	 */
+	
+	if (isset($_POST['add_student'])) {
 
-		if(isset($_POST['reg'])){
+		// get data 
+		$name = $_POST['name'];
+		$email = $_POST['email'];
+		$cell = $_POST['cell'];
 
-			//get values
+		$location = $_POST['location'];
+	 	$age = $_POST['age'];
 
-			$name = $_POST['name'];
-			$email = $_POST['email'];
-			$cell = $_POST['cell'];
-			$username = $_POST['username'];
-			$pass = $_POST['pass'];
-			$cpass = $_POST['cpass'];
-
-			/**
-			 * make hash pass
-			 */
-			$hash_pass = goHash($pass);
-
-
+		if (isset($_POST['gender'])) {
+			$gender = $_POST['gender'];
+		} else {
 			$gender = NULL;
-			if(isset($_POST['gender'])){
-				$gender = $_POST['gender'];
-			}
-
-			//validation
-			if(empty($name) || empty($email) || empty($cell) || empty($username) || empty($pass) || empty($gender)){
-				$msg = validate('Please sumbit the reqiured fields');
-			}else if( emailcheck($email) == false){
-				$msg = validate('Please validate your email Address!');
-			}else if(cellcheck($cell) == false){
-				$msg = validate('Your cell number is incorrect!');
-			}else if(passcheck($pass, $cpass) == false){
-				$msg = validate('The password is not the same !', 'warning');
-			}else if(dataCheck('users', 'email', $email) == false){
-				$msg = validate('This email is already used!');
-			}else if(dataCheck('users', 'cell', $cell) == false){
-				$msg = validate('This cell number is already in list!');
-			}else if(dataCheck('users', 'username', $username) == false){
-				$msg = validate('Look for a new username!');
-			}
-			else{
-				create("INSERT INTO users (name, email, cell, username, password, gender) VALUES ('$name', '$email', '$cell', '$username', '$hash_pass', '$gender')");
-
-				$msg = validate('You are now REGISTERED', 'primary');
-				formClean();
-			}
-			
-
 		}
+
+		$amount = $_POST['amount'];
+
+
+
+		if (empty($name) || empty($email) || empty($cell)) {
+			$msg = validate('All fileds are required ');
+		} else if (emailCheck($email) == false) {
+			$msg = validate('Invalid email address ');
+		} else if (cellcheck($cell) == false) {
+			$msg = validate('Invalid Cell number');
+		} else {
+
+			$file_name = move($_FILES['photo'], 'media/students/');
+			create("INSERT INTO students (name, email, cell, photo, location, age, gender, amount) VALUES ('$name','$email','$cell', '$file_name', '$location','$age','$gender','$amount')");
+			$msg = validate('Student added successful', 'success');
+		}
+	}
+	
 	?>
-	
-	
 
-	<div class="wrap shadow-sm w-50">
-		<div class="card px-5">
+	<div class="wrap">
+	<a class="btn btn-sm btn-primary text-light my-2 text-capitalize font-weight-bold" href="index.php">All Students</a>
+		<div class="card shadow">
+		
 			<div class="card-body">
-				<h2 class="py-2 text-primary font-weight-bold text-center">Create an account</h2>
-				
-				<?php
-					if(isset($msg)){
-						echo $msg;
-					}
-				?>
+				<h2>Add New Student</h2>
 
-				<form action="" method="POST" autocomplete="off">
+	 				<?php
+					 
+					 if(isset($msg)){
+						 echo $msg;
+					 }
+					 
+					 ?>
+
+				<form action="" method="POST" enctype="multipart/form-data">
+
 					<div class="form-group">
 						<label for="">Name</label>
 						<input name="name" class="form-control" value="<?php old('name'); ?>" type="text">
 					</div>
+
 					<div class="form-group">
 						<label for="">Email</label>
 						<input name="email" class="form-control" value="<?php old('email'); ?>" type="text">
 					</div>
+
 					<div class="form-group">
 						<label for="">Cell</label>
 						<input name="cell" class="form-control" value="<?php old('cell'); ?>" type="text">
 					</div>
 
 					<div class="form-group">
-						<label for="">Username</label>
-						<input name="username" class="form-control" value="<?php old('username'); ?>" type="text">
+						<label for="">Location</label>
+						<select class="form-control" name="location" id="">
+							<option value="">-select-</option>
+							<option class=" bg-primary text-light font-weight-bold" value="Mirpur">Mirpur</option>
+							<option class=" bg-primary text-light font-weight-bold" value="Gulshan">Gulshan</option>
+							<option class=" bg-primary text-light font-weight-bold" value="Uttara">Uttara</option>
+							<option class=" bg-primary text-light font-weight-bold" value="Badda">Badda</option>
+							<option class=" bg-primary text-light font-weight-bold" value="Dhanmondi">Dhanmondi</option>
+							<option class=" bg-primary text-light font-weight-bold" value="Banani">Banani</option>
+							<option class=" bg-primary text-light font-weight-bold" value="Mohammadpur">Mohammadpur</option>
+							<option class=" bg-primary text-light font-weight-bold" value="Rampura">Rampura</option>
+							<option class=" bg-primary text-light font-weight-bold" value="Bashundhara r/a">Bashundhara r/a</option>
+						</select>
 					</div>
 
 					<div class="form-group">
-						<label for="">Password</label>
-						<input name="pass" class="form-control" type="password">
+						<label for="">Age</label>
+						<input name="age" class="form-control" value="<?php old('age'); ?>" type="text">
 					</div>
 
 					<div class="form-group">
-						<label for="">Confirm Password</label>
-						<input name="cpass" class="form-control" type="password">
+						<label for="">Gender</label>
+						<input name="gender" type="radio" value="Male" id="Male"> <label for="Male">Male</label>
+						<input name="gender" type="radio" value="Female" id="Female"> <label for="Female">Female</label>
 					</div>
 
 					<div class="form-group">
-						<label for="">Gender</label><br>
-						<input name="gender" type="radio" value="male" id="Male"><label class="px-3" for="Male">Male</label>
-						<input name="gender" type="radio" value="female" id="Female"><label class="px-3" for="Female">Female</label>
+						<label for="">Amount</label>
+						<input name="amount" class="form-control" value="<?php old('amount'); ?>" type="text">
 					</div>
 
 					<div class="form-group">
-						<input name="reg" class="btn btn-primary" type="submit" value="Sign Up">
+						<label for=""><a href="media/students/"><img src="assets/media/im>g/pp_photo/photo-icon.png" widht="50px" height="50px" alt=""></a></label>
+						<input name="photo" class="" value="<?php old('photo'); ?>" type="file">
 					</div>
+
+					<div class="form-group">
+						<input name="add_student" class="btn btn-primary" type="submit" value="Sign Up">
+					</div>
+
 				</form>
-				<hr>
-				<a href="index.php" class="text-primary">Login Now</a>
+
 			</div>
+			
 		</div>
-	</div><br><br>
+	</div>
+
+	<br>
+	<br>
+	<br>
+	<br>
 	
-
-
-
 
 
 
@@ -142,4 +154,5 @@
 	<script src="assets/js/bootstrap.min.js"></script>
 	<script src="assets/js/custom.js"></script>
 </body>
+</html>
 </html>
